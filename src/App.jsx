@@ -1,8 +1,18 @@
-export default function App () {
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <h1 className="text-4xl font-bold text-gray-800">Tic-Tac-Toe</h1>
-      <p className="mt-4 text-lg text-gray-600">Game build in React with TailwindCSS</p>
-    </div>
-  )
+import Game from "./components/Game";
+import History from "./components/History";
+
+export default function App() {
+    return (
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+            <div className="my-4">
+                <h1 className="text-4xl text-center font-bold mb-6">
+                    Tic Tac Toe
+                </h1>
+                <div className="flex flex-col md:flex-row gap-8">
+                    <Game />
+                    <History />
+                </div>
+            </div>
+        </div>
+    );
 }
