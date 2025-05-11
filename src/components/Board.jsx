@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { checkWinner, getMatchPair } from "../utils/gameHelpers";
+import { checkWinner, getMatchPair } from "../utils/helpers";
 import Square from "./Square";
 
 export default function Board({ squares, player, onPlay }) {
