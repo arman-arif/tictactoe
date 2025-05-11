@@ -4,17 +4,28 @@ on:
     push:
         branches:
             - deploy
+    workflow_dispatch:
 
 permissions:
     contents: write
+    pages: write
+    id-token: write
+
+concurrency:
+    group: "pages"
+    cancel-in-progress: false
 
 jobs:
     build-and-deploy:
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+
         runs-on: ubuntu-latest
 
         steps:
-            - name: Checkout code
-              uses: actions/checkout@v3
+            - name: Checkout
+              uses: actions/checkout@v4
 
             - name: Set up Node.js
               uses: actions/setup-node@v3
@@ -27,8 +38,18 @@ jobs:
             - name: Build Project
               run: npm run build
 
-            - name: Deploy
-              uses: peaceiris/actions-gh-pages@v4
+            - name: Setup Pages
+              uses: actions/configure-pages@v5
+            - name: Upload artifact
+              uses: actions/upload-pages-artifact@v3
               with:
-                  deploy_key: ${{ secrets.DEPLOY_KEY_SSH }}
-                  publish_dir: ./dist
+                  path: './dist'
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v4
+
+            # - name: Push to gh-pages
+            #   uses: peaceiris/actions-gh-pages@v4
+            #   with:
+            #       deploy_key: ${{ secrets.DEPLOY_KEY_SSH }}
+            #       publish_dir: ./dist
