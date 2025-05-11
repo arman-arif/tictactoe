@@ -1,4 +1,4 @@
-import { getCell } from "../utils/gameHelpers";
+import { getCell } from "../utils/helpers";
 import Button from "./Button";
 import Score from "./Score";
 
@@ -8,6 +8,7 @@ export default function History({
     onResetHistory,
     onResetScores,
     onJumpToHistory,
+    currentMove,
 }) {
     return (
         <div className="min-w-[300px]">
@@ -43,7 +44,11 @@ export default function History({
                         {[...history].reverse().map((item, index) => (
                             <li
                                 key={index}
-                                className="flex justify-between items-center hover:bg-gray-50 p-2 border-b-gray-200 not-last:border-b"
+                                className={`flex justify-between items-center  p-2 not-last:border-b ${
+                                    currentMove === history.length - index
+                                        ? "bg-gray-100 border-b-gray-300 "
+                                        : "hover:bg-gray-50 border-b-gray-200 "
+                                }`}
                             >
                                 <span>
                                     Move #{history.length - index}:{" "}

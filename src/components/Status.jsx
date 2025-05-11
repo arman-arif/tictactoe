@@ -8,8 +8,7 @@ export default function Status({ gameOver, nextPlayer }) {
 
     return (
         <div className="text-gray-900">
-            Next player:{" "}
-            <strong className={nextPlayerColor}>{nextPlayer}</strong>
+            <strong className={nextPlayerColor}>{nextPlayer}</strong> turn
         </div>
     );
 }

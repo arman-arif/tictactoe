@@ -1,11 +1,12 @@
-import { useEffect, useRef, useState } from "react";
-import { checkGameOver, checkWinner } from "../utils/gameHelpers";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useEffect, useState } from "react";
+import { checkGameOver, checkWinner } from "../utils/helpers";
 import Board from "./Board";
 import History from "./History";
 import Result from "./Result";
 import Status from "./Status";
 
-export default function Game() {
+export default function Game({ onWin, onDraw, onPlayTurn }) {
     const [squares, setSquares] = useState(Array(9).fill(null));
     const [score, setScore] = useState({ x: 0, o: 0, draw: 0 });
     const [history, setHistory] = useState([]);
@@ -14,22 +15,27 @@ export default function Game() {
     const [winner, setWinner] = useState(null);
     const [gameOver, setGameOver] = useState(false);
     const [showResult, setShowResult] = useState(false);
-
-    const clickAudio = useRef(null);
-    const drawAudio = useRef(null);
-    const winAudio = useRef(null);
+    const [countDown, setCountDown] = useState(0);
+    const [showCountDown, setShowCountDown] = useState(false);
+    const [diggingHistory, setDiggingHistory] = useState(false);
 
     useEffect(() => {
         if (gameOver) {
-            setTimeout(() => {
-                setShowResult(true);
-            }, 3000);
+            setCountDown(3);
+            setTimeout(() => setShowResult(true), 3000);
+            setShowCountDown(true);
+            const interval = setInterval(() => {
+                setCountDown((prev) => {
+                    if (prev === 1) {
+                        clearInterval(interval);
+                        setShowCountDown(false);
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
 
-            if (winner) {
-                playAudio(winAudio);
-            } else {
-                playAudio(drawAudio);
-            }
+            winner ? onWin() : onDraw();
         }
     }, [gameOver, winner]);
 
@@ -37,9 +43,14 @@ export default function Game() {
         setSquares(newSquares);
         setNextPlayer(nextPlayer === "X" ? "O" : "X");
 
-        playAudio(clickAudio);
+        onPlayTurn();
 
-        const newHistory = history.slice();
+        let newHistory = history.slice();
+        if (diggingHistory) {
+            setDiggingHistory(false);
+            newHistory = history.slice(0, currentMove);
+        }
+
         newHistory[currentMove] = {
             player: nextPlayer,
             squares: newSquares,
@@ -47,19 +58,11 @@ export default function Game() {
         };
         setHistory(newHistory);
 
+        setCurrentMove(currentMove + 1);
+
         const result = handleWinner(newSquares);
 
         if (result) return;
-
-        setCurrentMove(currentMove + 1);
-    };
-
-    const playAudio = (audioRef) => {
-        if (audioRef.current) {
-            audioRef.current.pause();
-            audioRef.current.load();
-            audioRef.current.play();
-        }
     };
 
     const handleWinner = (newSquares) => {
@@ -126,10 +129,9 @@ export default function Game() {
     const handleJumpToHistory = (index) => {
         const _history = history[index];
         setSquares(_history.squares);
-        setCurrentMove(index);
+        setCurrentMove(index + 1);
         setNextPlayer(_history.player === "X" ? "O" : "X");
-        const resetHistory = history.slice(0, index + 1);
-        console.log(resetHistory);
+        setDiggingHistory(true);
     };
 
     return (
@@ -138,18 +140,27 @@ export default function Game() {
                 <div className="bg-white shadow-md mb-4 p-4 rounded-lg text-xl text-center">
                     <Status {...{ gameOver, nextPlayer }} />
                 </div>
-                <Board
-                    squares={squares}
-                    player={nextPlayer}
-                    onPlay={handleOnPlay}
-                    winner={winner}
-                />
+                <div className="relative rounded-lg">
+                    <Board
+                        squares={squares}
+                        player={nextPlayer}
+                        onPlay={handleOnPlay}
+                    />
+                    {showCountDown && (
+                        <div className="top-0 right-0 bottom-0 left-0 absolute flex justify-center items-center bg-slate-300 opacity-50 rounded-lg w-full h-full">
+                            <div className="p-3 font-semibold text-[15rem] text-white text-center">
+                                {countDown}
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
             <History
                 history={history}
                 onResetHistory={handleResetHistory}
                 onResetScores={handleResetScoreBoard}
                 onJumpToHistory={handleJumpToHistory}
+                currentMove={currentMove}
                 score={score}
             />
 
@@ -161,23 +172,6 @@ export default function Game() {
                     winner={winner}
                 />
             )}
-
-            {/* <audio ref={clickAudio} src={clickSound} preload="auto"></audio> */}
-            <audio
-                ref={clickAudio}
-                src="assets/sounds/click.wav"
-                preload="auto"
-            ></audio>
-            <audio
-                ref={drawAudio}
-                src="/assets/sounds/draw.mp3"
-                preload="auto"
-            ></audio>
-            <audio
-                ref={winAudio}
-                src="/assets/sounds/win.mp3"
-                preload="auto"
-            ></audio>
         </div>
     );
 }
