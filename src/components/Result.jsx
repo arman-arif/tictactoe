@@ -1,3 +1,5 @@
+import IconCircle from "../icons/IconCircle";
+import IconX from "../icons/IconX";
 import Score from "./Score";
 
 export default function Result({
@@ -6,9 +8,9 @@ export default function Result({
     onClickNextBoard,
     onClickRestart,
 }) {
-    const winnerClass = `mb-6 font-semibold ${
+    const winnerClass = `mb-6 flex justify-center ${
         winner == "X" ? "text-sky-500" : "text-orange-600"
-    } text-6xl text-center`;
+    }`;
 
     return (
         <div className="z-20 absolute inset-0 flex justify-center items-center bg-black/75">
@@ -21,7 +23,13 @@ export default function Result({
                                     <p className="mb-2 font-bold text-2xl text-center uppercase leading-none">
                                         Winner
                                     </p>
-                                    <h4 className={winnerClass}>{winner}</h4>
+                                    <div className={winnerClass}>
+                                        {winner == "X" ? (
+                                            <IconX size={70} />
+                                        ) : (
+                                            <IconCircle size={70} />
+                                        )}
+                                    </div>
                                 </>
                             ) : (
                                 <div>

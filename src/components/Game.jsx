@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { checkGameOver, checkWinner } from "../utils/gameHelpers";
 import Board from "./Board";
 import History from "./History";
@@ -13,10 +13,31 @@ export default function Game() {
     const [currentMove, setCurrentMove] = useState(0);
     const [winner, setWinner] = useState(null);
     const [gameOver, setGameOver] = useState(false);
+    const [showResult, setShowResult] = useState(false);
+
+    const clickAudio = useRef(null);
+    const drawAudio = useRef(null);
+    const winAudio = useRef(null);
+
+    useEffect(() => {
+        if (gameOver) {
+            setTimeout(() => {
+                setShowResult(true);
+            }, 3000);
+
+            if (winner) {
+                playAudio(winAudio);
+            } else {
+                playAudio(drawAudio);
+            }
+        }
+    }, [gameOver, winner]);
 
     const handleOnPlay = (newSquares, cellIndex) => {
         setSquares(newSquares);
         setNextPlayer(nextPlayer === "X" ? "O" : "X");
+
+        playAudio(clickAudio);
 
         const newHistory = history.slice();
         newHistory[currentMove] = {
@@ -31,6 +52,14 @@ export default function Game() {
         if (result) return;
 
         setCurrentMove(currentMove + 1);
+    };
+
+    const playAudio = (audioRef) => {
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.load();
+            audioRef.current.play();
+        }
     };
 
     const handleWinner = (newSquares) => {
@@ -67,6 +96,7 @@ export default function Game() {
         setCurrentMove(0);
         setWinner(null);
         setGameOver(false);
+        setShowResult(false);
     };
 
     const handleResetHistory = () => {
@@ -86,6 +116,7 @@ export default function Game() {
         setNextPlayer("X");
         setWinner(null);
         setGameOver(false);
+        setShowResult(false);
     };
 
     const handleResetScoreBoard = () => {
@@ -122,7 +153,7 @@ export default function Game() {
                 score={score}
             />
 
-            {gameOver && (
+            {showResult && (
                 <Result
                     onClickNextBoard={handleNextBoard}
                     onClickRestart={handleRestart}
@@ -130,6 +161,23 @@ export default function Game() {
                     winner={winner}
                 />
             )}
+
+            {/* <audio ref={clickAudio} src={clickSound} preload="auto"></audio> */}
+            <audio
+                ref={clickAudio}
+                src="assets/sounds/click.wav"
+                preload="auto"
+            ></audio>
+            <audio
+                ref={drawAudio}
+                src="/assets/sounds/draw.mp3"
+                preload="auto"
+            ></audio>
+            <audio
+                ref={winAudio}
+                src="/assets/sounds/win.mp3"
+                preload="auto"
+            ></audio>
         </div>
     );
 }

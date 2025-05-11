@@ -1,9 +1,14 @@
-import { checkWinner } from "../utils/gameHelpers";
+import { useEffect, useState } from "react";
+import { checkWinner, getMatchPair } from "../utils/gameHelpers";
 import Square from "./Square";
 
 export default function Board({ squares, player, onPlay }) {
+    const [winner, setWinner] = useState(null);
+    const [matchPair, setMatchPair] = useState([]);
+
     const handleSqrClick = (index) => {
         const newSquares = squares.slice();
+
         if (newSquares[index] || checkWinner(newSquares)) {
             return;
         }
@@ -11,6 +16,11 @@ export default function Board({ squares, player, onPlay }) {
 
         onPlay(newSquares, index);
     };
+
+    useEffect(() => {
+        setMatchPair(getMatchPair(squares));
+        setWinner(checkWinner(squares));
+    }, [squares]);
 
     return (
         <div className="bg-white shadow-md p-5 rounded-lg">
@@ -21,6 +31,8 @@ export default function Board({ squares, player, onPlay }) {
                             key={index}
                             text={value}
                             onSqrClick={() => handleSqrClick(index)}
+                            isWinningSqr={matchPair.includes(index)}
+                            hasWinner={!!winner}
                         />
                     ))}
                 </div>
