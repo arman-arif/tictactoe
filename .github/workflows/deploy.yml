@@ -30,4 +30,5 @@ jobs:
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
         with:
+          deploy_key: ${{ secrets.DEPLOY_KEY_SSH }}
           publish_dir: ./dist
