@@ -1,16 +1,16 @@
-export const checkWinner = (sqrs) => {
-    const lines = [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6],
-    ];
+export const winnerLines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+];
 
-    for (let line of lines) {
+export const checkWinner = (sqrs) => {
+    for (let line of winnerLines) {
         const [x, y, z] = line;
         if (sqrs[x] && sqrs[x] === sqrs[y] && sqrs[x] === sqrs[z]) {
             return sqrs[x];
@@ -18,6 +18,18 @@ export const checkWinner = (sqrs) => {
     }
 
     return null;
+};
+
+export const getMatchPair = (sqrs) => {
+    for (let i = 0; i < winnerLines.length; i++) {
+        const [x, y, z] = winnerLines[i];
+
+        if (sqrs[x] && sqrs[x] === sqrs[y] && sqrs[x] === sqrs[z]) {
+            return winnerLines[i];
+        }
+    }
+
+    return [];
 };
 
 export const getCell = (index) => {
